@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Storybook Presentation</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #0b0f19;
+        --panel: #111827;
+        --border: rgba(255, 255, 255, 0.12);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.72);
+        --muted2: rgba(255, 255, 255, 0.56);
+        --focus: rgba(56, 189, 248, 0.65);
+        --btn: rgba(255, 255, 255, 0.08);
+        --btnHover: rgba(255, 255, 255, 0.12);
+        --shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+        --radius: 12px;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI,
+          Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: radial-gradient(
+            1400px 800px at 10% 0%,
+            rgba(59, 130, 246, 0.18),
+            transparent 60%
+          ),
+          radial-gradient(
+            1400px 800px at 90% 0%,
+            rgba(236, 72, 153, 0.16),
+            transparent 55%
+          ),
+          var(--bg);
+        color: var(--text);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .app {
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(17, 24, 39, 0.86);
+        backdrop-filter: blur(14px);
+      }
+
+      .panel {
+        background: rgba(17, 24, 39, 0.7);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .controls {
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      @media (min-width: 900px) {
+        .row {
+          grid-template-columns: 1fr 260px 160px;
+          align-items: end;
+        }
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      input[type="text"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--text);
+        outline: none;
+      }
+
+      input[type="text"]:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--focus);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
+      }
+
+      textarea {
+        min-height: 120px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.9);
+        resize: vertical;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: var(--btn);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+      }
+
+      .btn:hover {
+        background: var(--btnHover);
+      }
+
+      .btn:focus {
+        outline: none;
+        border-color: var(--focus);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
+      }
+
+      .meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 0 12px 12px;
+        color: var(--muted2);
+        font-size: 12px;
+      }
+
+      .toggle {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        user-select: none;
+        cursor: pointer;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.18);
+      }
+
+      .toggle input {
+        margin: 0;
+      }
+
+      .content {
+        min-height: 0;
+        padding: 12px;
+      }
+
+      .frameWrap {
+        height: 100%;
+        min-height: 0;
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: white;
+      }
+
+      .codePanel {
+        margin-top: 12px;
+        padding: 12px;
+      }
+
+      .helper {
+        margin-top: 8px;
+        color: var(--muted2);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="topbar">
+        <div class="panel">
+          <div class="controls">
+            <div class="row">
+              <label>
+                Story ID
+                <input
+                  id="storyId"
+                  type="text"
+                  spellcheck="false"
+                  placeholder="e.g. sds-primitives-buttons--story-destructive-button"
+                />
+              </label>
+
+              <label>
+                View mode
+                <select id="viewMode">
+                  <option value="story">Story</option>
+                  <option value="docs">Docs</option>
+                </select>
+              </label>
+
+              <div class="actions">
+                <button class="btn" id="openManager" type="button">
+                  Open in Storybook
+                </button>
+                <button class="btn" id="copyLink" type="button">
+                  Copy link
+                </button>
+              </div>
+            </div>
+
+            <div class="meta">
+              <div id="status">Enter a Story ID to load.</div>
+              <label class="toggle" title="Show embeddable iframe HTML">
+                <input id="showCode" type="checkbox" />
+                Show code
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="frameWrap">
+          <iframe
+            id="sbIframe"
+            title="Storybook"
+            allow="clipboard-write"
+          ></iframe>
+
+          <div class="panel codePanel hidden" id="codePanel">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <button class="btn" id="copyEmbed" type="button">
+                Copy iframe embed
+              </button>
+              <button class="btn" id="copyIframeUrl" type="button">
+                Copy iframe URL
+              </button>
+            </div>
+            <div class="helper">
+              This is the embeddable Storybook preview URL (`iframe.html`). Use it
+              anywhere you can embed an iframe.
+            </div>
+            <textarea id="embedCode" readonly></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const OWN_PARAMS = new Set(["id", "storyId", "viewMode", "showCode", "url", "path"]);
+
+      function getRootHref() {
+        // presentation/index.html -> storybook root
+        return new URL("../", window.location.href).href;
+      }
+
+      function parseStoryIdFromUrlish(raw) {
+        if (!raw) return null;
+
+        // If the user pastes a full Storybook URL, extract a story ID.
+        try {
+          const u = new URL(raw, window.location.href);
+          const id = u.searchParams.get("id");
+          if (id) return id;
+
+          const path = u.searchParams.get("path");
+          if (path) {
+            // path looks like /story/<id> or /docs/<id>
+            const match = path.match(/\/(story|docs)\/(.+)$/);
+            if (match && match[2]) return match[2];
+          }
+        } catch {
+          // not a URL
+        }
+
+        // Or a raw "path" fragment
+        const match2 = raw.match(/\/(story|docs)\/(.+)$/);
+        if (match2 && match2[2]) return match2[2];
+
+        // Or already an id
+        return raw;
+      }
+
+      function getInitialState() {
+        const qs = new URLSearchParams(window.location.search);
+        const urlish = qs.get("url") || qs.get("path") || qs.get("id") || qs.get("storyId") || "";
+        const id = parseStoryIdFromUrlish(urlish);
+        const viewMode = qs.get("viewMode") === "docs" ? "docs" : "story";
+        const showCode = qs.get("showCode") === "1" || qs.get("showCode") === "true";
+
+        return { id, viewMode, showCode };
+      }
+
+      function buildPassThroughParams() {
+        // Preserve Storybook params like args/globals, but don't leak our presentation-only params.
+        const qs = new URLSearchParams(window.location.search);
+        for (const k of Array.from(qs.keys())) {
+          if (OWN_PARAMS.has(k)) qs.delete(k);
+        }
+        return qs;
+      }
+
+      function buildIframeUrl({ id, viewMode }) {
+        const iframe = new URL("iframe.html", getRootHref());
+        if (!id) return null;
+
+        iframe.searchParams.set("id", id);
+        iframe.searchParams.set("viewMode", viewMode);
+
+        const passthrough = buildPassThroughParams();
+        for (const [k, v] of passthrough.entries()) {
+          iframe.searchParams.set(k, v);
+        }
+
+        return iframe;
+      }
+
+      function buildManagerUrl({ id, viewMode }) {
+        // Use the manager UI with ?path= so it matches how we already link today.
+        const manager = new URL("", getRootHref());
+        if (!id) return null;
+
+        manager.searchParams.set("path", `/${viewMode === "docs" ? "docs" : "story"}/${id}`);
+
+        const passthrough = buildPassThroughParams();
+        for (const [k, v] of passthrough.entries()) {
+          manager.searchParams.set(k, v);
+        }
+
+        return manager;
+      }
+
+      function buildEmbedHtml({ iframeUrl }) {
+        return `<!-- Storybook embed -->\n<iframe\n  src="${iframeUrl.href}"\n  style="width: 100%; height: 600px; border: 0;"\n  loading="lazy"\n  title="Storybook"\n></iframe>`;
+      }
+
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch {
+          try {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            return true;
+          } catch {
+            return false;
+          }
+        }
+      }
+
+      function setUrlState({ id, viewMode, showCode }) {
+        const next = new URL(window.location.href);
+        next.searchParams.set("id", id || "");
+        next.searchParams.set("viewMode", viewMode);
+        if (showCode) {
+          next.searchParams.set("showCode", "1");
+        } else {
+          next.searchParams.delete("showCode");
+        }
+
+        // Keep pass-through params as-is
+        window.history.replaceState(null, "", next);
+      }
+
+      function setStatus(text) {
+        document.getElementById("status").textContent = text;
+      }
+
+      function render() {
+        const id = storyIdEl.value.trim();
+        const viewMode = viewModeEl.value;
+        const showCode = showCodeEl.checked;
+
+        setUrlState({ id, viewMode, showCode });
+
+        const iframeUrl = buildIframeUrl({ id, viewMode });
+        const managerUrl = buildManagerUrl({ id, viewMode });
+
+        if (!id) {
+          iframeEl.removeAttribute("src");
+          setStatus("Enter a Story ID to load.");
+          embedCodeEl.value = "";
+          return;
+        }
+
+        iframeEl.src = iframeUrl.href;
+        setStatus(`Loaded: ${id} (${viewMode})`);
+
+        embedCodeEl.value = buildEmbedHtml({ iframeUrl });
+
+        codePanelEl.classList.toggle("hidden", !showCode);
+
+        openManagerBtn.onclick = () => window.open(managerUrl.href, "_blank", "noopener,noreferrer");
+        copyLinkBtn.onclick = async () => {
+          const ok = await copyText(window.location.href);
+          setStatus(ok ? "Copied link to clipboard." : "Couldn’t copy link (clipboard blocked)." );
+        };
+
+        copyEmbedBtn.onclick = async () => {
+          const ok = await copyText(embedCodeEl.value);
+          setStatus(ok ? "Copied iframe embed code." : "Couldn’t copy embed code (clipboard blocked)." );
+        };
+
+        copyIframeUrlBtn.onclick = async () => {
+          const ok = await copyText(iframeUrl.href);
+          setStatus(ok ? "Copied iframe URL." : "Couldn’t copy iframe URL (clipboard blocked)." );
+        };
+      }
+
+      const storyIdEl = document.getElementById("storyId");
+      const viewModeEl = document.getElementById("viewMode");
+      const showCodeEl = document.getElementById("showCode");
+      const iframeEl = document.getElementById("sbIframe");
+      const codePanelEl = document.getElementById("codePanel");
+      const embedCodeEl = document.getElementById("embedCode");
+      const openManagerBtn = document.getElementById("openManager");
+      const copyLinkBtn = document.getElementById("copyLink");
+      const copyEmbedBtn = document.getElementById("copyEmbed");
+      const copyIframeUrlBtn = document.getElementById("copyIframeUrl");
+
+      const initial = getInitialState();
+      if (initial.id) storyIdEl.value = initial.id;
+      viewModeEl.value = initial.viewMode;
+      showCodeEl.checked = initial.showCode;
+
+      storyIdEl.addEventListener("input", () => render());
+      viewModeEl.addEventListener("change", () => render());
+      showCodeEl.addEventListener("change", () => render());
+
+      render();
+    </script>
+  </body>
+</html>
